@@ -1,0 +1,27 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ── 대용량 데이터 (GitHub 제외) ──
+data/yolo_dataset/
+data/rag_db/
+data/knowledge/*.pdf
+data/*.db
+
+# ── 모델 가중치 (재생성 가능) ──
+models/*.pt
+models/*.onnx
+models/car_damage_seg/
+yolov8n-seg.pt
+yolov8n.pt
+runs/
+
+# ── 시스템/에디터 ──
+.DS_Store
+*.log
+.streamlit/secrets.toml

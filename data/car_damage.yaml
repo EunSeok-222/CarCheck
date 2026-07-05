@@ -1,0 +1,10 @@
+path: /Users/eunseoklee/Desktop/car-damage-analyzer/data/yolo_dataset
+train: images/train
+val:   images/val
+
+nc: 4
+names:
+  0: Scratched
+  1: Breakage
+  2: Separated
+  3: Crushed
