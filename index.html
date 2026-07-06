@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)file:///Users/eunseoklee/Desktop/car-damage-analyzer/presentation.html -->
+<html lang="ko" class="reveal-full-page" data-hwp-extension="rhwp" data-hwp-extension-version="0.2.8"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarCheck · AI 차량 손상 분석 발표</title>
+
+<link rel="stylesheet" href="./CarCheck · AI 차량 손상 분석 발표_files/reveal.css">
+<link rel="stylesheet" href="./CarCheck · AI 차량 손상 분석 발표_files/reset.css">
+<link rel="stylesheet" href="./CarCheck · AI 차량 손상 분석 발표_files/pretendard.css">
+
+<style>
+:root{
+  --navy-900:#0A1628; --navy-800:#0F1E38; --panel:#0C1B33;
+  --neon-cyan:#22D3EE; --neon-blue:#3B82F6; --neon-bright:#60A5FA;
+  --text:#E2E8F0; --text-dim:#94A3B8;
+  --glass:rgba(255,255,255,0.04); --glass-border:rgba(96,165,250,0.28);
+  --amber:#F59E0B; --green:#34D399; --pink:#F472B6; --red:#FCA5A5;
+}
+.reveal{ font-family:'Pretendard',-apple-system,sans-serif; font-size:28px; color:var(--text); }
+.reveal .slides{ text-align:left; }
+.reveal .slides section{ height:100%; }
+.reveal-viewport{
+  background:
+    radial-gradient(circle at 15% 0%, rgba(34,211,238,0.10), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(59,130,246,0.14), transparent 45%),
+    linear-gradient(160deg,#0A1628 0%,#0C1B33 55%,#0A1628 100%);
+}
+.reveal h1,.reveal h2,.reveal h3{ color:#fff; font-weight:800; letter-spacing:-0.02em; text-transform:none; line-height:1.2; }
+.reveal h1{ font-size:2.4em; } .reveal h2{ font-size:1.4em; margin-bottom:0.4em; } .reveal h3{ font-size:1em; }
+.reveal strong{ color:var(--neon-bright); font-weight:700; }
+.reveal em{ color:var(--neon-cyan); font-style:normal; font-weight:600; }
+.reveal p{ line-height:1.5; }
+.reveal code{ color:#FBBF24; font-size:0.86em; background:rgba(251,191,36,0.1); padding:1px 7px; border-radius:5px; }
+
+.kicker{ display:inline-block; font-size:0.46em; font-weight:800; letter-spacing:0.22em; color:var(--neon-cyan);
+  text-transform:uppercase; margin-bottom:0.4em; padding:5px 13px; border:1px solid var(--glass-border);
+  border-radius:999px; background:var(--glass); }
+.slide-head{ margin-bottom:0.5em; } .slide-head h2{ margin:0; }
+.rule{ height:3px; width:60px; margin:12px 0 20px; background:linear-gradient(90deg,var(--neon-cyan),var(--neon-blue)); border-radius:3px; }
+
+.card{ background:var(--glass); border:1px solid var(--glass-border); border-radius:16px; padding:20px 22px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05); backdrop-filter:blur(6px); }
+.card h3{ margin:0 0 8px; color:#fff; }
+.card p,.card li{ color:var(--text-dim); font-size:0.8em; line-height:1.5; }
+.card .big{ color:var(--neon-bright); font-weight:800; font-size:1.6em; display:block; }
+
+.grid{ display:grid; gap:16px; } .g2{ grid-template-columns:1fr 1fr; } .g3{ grid-template-columns:repeat(3,1fr); } .g4{ grid-template-columns:repeat(4,1fr); }
+
+.chip{ display:inline-block; margin:4px 6px 4px 0; padding:7px 14px; border-radius:9px; font-size:0.66em; font-weight:600;
+  background:rgba(59,130,246,0.12); border:1px solid var(--glass-border); color:var(--text); }
+.chip .t{ color:var(--neon-cyan); font-weight:800; margin-right:6px; }
+
+ul.clean{ list-style:none; margin:0; padding:0; }
+ul.clean li{ position:relative; padding:9px 0 9px 28px; font-size:0.82em; line-height:1.4;
+  border-bottom:1px solid rgba(255,255,255,0.06); color:var(--text); }
+ul.clean li:last-child{ border-bottom:none; }
+ul.clean li::before{ content:''; position:absolute; left:4px; top:16px; width:8px; height:8px; border-radius:50%;
+  background:var(--neon-cyan); box-shadow:0 0 10px var(--neon-cyan); }
+
+.num-list{ counter-reset:n; list-style:none; margin:0; padding:0; }
+.num-list li{ counter-increment:n; position:relative; padding:11px 0 11px 52px; font-size:0.78em; line-height:1.4;
+  border-bottom:1px solid rgba(255,255,255,0.06); }
+.num-list li:last-child{ border-bottom:none; }
+.num-list li::before{ content:counter(n,decimal-leading-zero); position:absolute; left:0; top:9px; width:34px; height:34px;
+  border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.78em;
+  color:var(--navy-900); background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue)); box-shadow:0 4px 14px rgba(34,211,238,0.35); }
+.num-list li b{ color:#fff; } .num-list li span{ color:var(--text-dim); }
+
+/* VS 비교 */
+.vs-wrap{ display:flex; align-items:center; gap:16px; }
+.vs-wrap .card{ flex:1; align-self:stretch; }
+.vs-badge{ flex:0 0 auto; align-self:center;
+  width:52px; height:52px; border-radius:50%; background:var(--navy-800); border:2px solid var(--glass-border);
+  display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--neon-cyan); font-size:0.7em; }
+
+/* 그래프 슬라이드 레이아웃 */
+.glayout{ display:flex; gap:18px; align-items:stretch; }
+.gleft{ flex:1.45; display:flex; flex-direction:column; gap:12px; }
+.gright{ flex:1; display:flex; flex-direction:column; gap:10px; }
+.gimg{ width:100%; border-radius:12px; border:1px solid var(--glass-border); box-shadow:0 6px 22px rgba(0,0,0,0.4); display:block; }
+.panel{ background:var(--glass); border:1px solid var(--glass-border); border-left:4px solid var(--neon-cyan);
+  border-radius:10px; padding:12px 15px; }
+.panel.p-obs{ border-left-color:var(--neon-cyan); }
+.panel.p-int{ border-left-color:var(--neon-blue); }
+.panel.p-cau{ border-left-color:var(--amber); }
+.panel .ph{ font-size:0.62em; font-weight:800; color:#fff; margin-bottom:5px; letter-spacing:0.02em; }
+.panel .pb{ font-size:0.6em; color:var(--text-dim); line-height:1.45; }
+.panel.p-obs .ph{ color:var(--neon-cyan); } .panel.p-int .ph{ color:var(--neon-bright); } .panel.p-cau .ph{ color:var(--amber); }
+
+/* 수식·예시 박스 */
+.formula{ background:rgba(34,211,238,0.07); border:1px solid var(--glass-border); border-radius:12px; padding:16px 20px;
+  font-size:0.8em; color:var(--text); text-align:center; }
+.formula .eq{ color:var(--neon-cyan); font-weight:700; }
+.example{ background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3); border-radius:12px; padding:14px 18px; font-size:0.72em; }
+.example b{ color:var(--green); }
+
+table.data{ width:100%; border-collapse:collapse; font-size:0.68em; }
+table.data th{ text-align:left; padding:10px 13px; color:var(--neon-cyan); font-weight:800; border-bottom:2px solid var(--glass-border); }
+table.data td{ padding:9px 13px; border-bottom:1px solid rgba(255,255,255,0.07); color:var(--text); }
+table.data tr td:first-child{ color:var(--text-dim); }
+table.data .up{ color:var(--green); font-weight:800; }
+table.data .hl td{ background:rgba(34,211,238,0.08); }
+
+.flow{ display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; }
+.flow .node{ background:var(--glass); border:1px solid var(--glass-border); border-radius:13px; padding:14px 12px; text-align:center; min-width:110px; }
+.flow .node .ico{ font-size:1.5em; display:block; margin-bottom:5px; }
+.flow .node .t{ font-size:0.58em; font-weight:700; color:#fff; }
+.flow .node .d{ font-size:0.46em; color:var(--text-dim); margin-top:3px; }
+.flow .ar{ color:var(--neon-cyan); font-size:1.3em; }
+
+.trouble{ display:flex; gap:12px; align-items:flex-start; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:0.66em; }
+.trouble:last-child{ border-bottom:none; }
+.trouble .p{ color:var(--red); font-weight:700; flex:1.25; } .trouble .s{ color:var(--neon-cyan); font-weight:700; flex:1; }
+.trouble .arrow{ color:var(--text-dim); align-self:center; }
+
+.reveal .progress{ color:var(--neon-cyan); height:4px; }
+.reveal .slide-number{ background:transparent; color:var(--text-dim); font-size:13px; }
+.footer-brand{ position:fixed; bottom:14px; left:24px; font-size:12px; color:var(--text-dim); letter-spacing:0.1em; z-index:30; }
+.footer-brand b{ color:var(--neon-cyan); }
+
+/* 인트로 스캔 애니메이션 */
+.intro-slide{ text-align:center !important; }
+.scan-scene{ position:relative; width:500px; height:240px; margin:0 auto 6px; }
+.scan-scene svg{ width:100%; height:100%; overflow:visible; }
+.car-line{ fill:none; stroke:var(--neon-bright); stroke-width:3; filter:drop-shadow(0 0 6px rgba(96,165,250,0.7));
+  stroke-dasharray:1400; stroke-dashoffset:1400; animation:draw 1.6s ease forwards; }
+.car-glass{ fill:rgba(59,130,246,0.15); stroke:var(--neon-blue); stroke-width:2; opacity:0; animation:fadeIn 0.6s ease 1.2s forwards; }
+.car-wheel{ fill:#0A1628; stroke:var(--neon-cyan); stroke-width:3; opacity:0; filter:drop-shadow(0 0 5px rgba(34,211,238,0.6)); animation:fadeIn 0.5s ease 1.0s forwards; }
+@keyframes draw{ to{ stroke-dashoffset:0; } } @keyframes fadeIn{ to{ opacity:1; } }
+.scan-bar{ position:absolute; top:0; left:0; width:5px; height:100%; background:linear-gradient(180deg,transparent,var(--neon-cyan),transparent);
+  box-shadow:0 0 24px 8px rgba(34,211,238,0.65); border-radius:5px; opacity:0; animation:sweep 2.6s ease-in-out 1.6s forwards; }
+@keyframes sweep{ 0%{ left:2%; opacity:0; } 10%{ opacity:1; } 90%{ opacity:1; } 100%{ left:98%; opacity:0; } }
+.detect{ position:absolute; border:2px dashed var(--neon-cyan); border-radius:8px; opacity:0; box-shadow:0 0 16px rgba(34,211,238,0.4); }
+.detect .lbl{ position:absolute; top:-23px; left:-2px; font-size:11px; font-weight:800; background:var(--neon-cyan); color:var(--navy-900); padding:2px 8px; border-radius:5px; white-space:nowrap; }
+.detect.d1{ left:66px; top:145px; width:105px; height:56px; animation:pop 0.5s ease 2.4s forwards; }
+.detect.d2{ left:240px; top:126px; width:115px; height:52px; animation:pop 0.5s ease 3.0s forwards; }
+.detect.d3{ left:365px; top:92px; width:86px; height:66px; animation:pop 0.5s ease 3.5s forwards; }
+@keyframes pop{ 0%{ opacity:0; transform:scale(0.8); } 100%{ opacity:1; transform:scale(1); } }
+.brand-reveal{ opacity:0; transform:translateY(20px); animation:rise 1s ease 4.0s forwards; }
+.brand-reveal h1{ font-size:3.2em; margin:0; background:linear-gradient(120deg,#fff 20%,var(--neon-cyan) 60%,var(--neon-blue));
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 30px rgba(34,211,238,0.3)); }
+.sub-reveal{ opacity:0; animation:rise 1s ease 4.5s forwards; }
+.sub-reveal p{ color:var(--text-dim); font-size:0.86em; margin:10px 0 0; letter-spacing:0.04em; }
+@keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+.hint{ position:fixed; bottom:20px; right:26px; font-size:12px; color:var(--text-dim); opacity:0; animation:fadeIn 1s ease 5s forwards; }
+</style>
+</head>
+<body class="reveal-viewport" style="--slide-width: 1280px; --slide-height: 720px; --slide-scale: 0.99225; --viewport-width: 1352px; --viewport-height: 756px;">
+<div class="reveal slide center focused has-horizontal-slides ready has-dark-background" role="application" data-transition-speed="default" data-background-transition="fade" style="">
+<div class="slides" style="width: 1280px; height: 720px; inset: 50% auto auto 50%; transform: translate(-50%, -50%) scale(0.99225);">
+
+<!-- 1. 인트로 -->
+<section data-background-color="#0A1628" class="intro-slide has-dark-background present" style="top: 0px; display: block;">
+  <div class="scan-scene">
+    <svg viewBox="0 0 500 240" preserveAspectRatio="xMidYMid meet">
+      <path class="car-line" d="M38,182 L66,182 Q76,144 116,140 L172,134 Q196,92 244,90 L326,90 Q368,92 392,138 L436,144 Q458,148 458,174 L458,182 L430,182 M116,182 L384,182"></path>
+      <path class="car-glass" d="M186,132 Q200,100 240,98 L306,98 Q336,100 356,134 Z"></path>
+      <circle class="car-wheel" cx="125" cy="182" r="25"></circle>
+      <circle class="car-wheel" cx="392" cy="182" r="25"></circle>
+    </svg>
+    <div class="scan-bar"></div>
+    <div class="detect d1"><span class="lbl">Scratched 92%</span></div>
+    <div class="detect d2"><span class="lbl">Crushed 78%</span></div>
+    <div class="detect d3"><span class="lbl">Breakage 66%</span></div>
+  </div>
+  <div class="brand-reveal"><h1>CarCheck</h1></div>
+  <div class="sub-reveal"><p>AI 차량 손상 분석 &nbsp;·&nbsp; 보험 처리 비용 비교 &nbsp;·&nbsp; 전문 상담</p>
+    <p style="margin-top:16px; font-weight:700; letter-spacing:0.1em;">이은석</p></div>
+
+  <div class="hint">→ 방향키로 넘기기</div>
+  <aside class="notes">안녕하세요, CarCheck를 발표할 이은석입니다. 사진 한 장으로 보험 처리가 이득인지 자비 처리가 이득인지 알려주는 AI 상담 서비스입니다.</aside>
+</section>
+
+<!-- 2. 목차 -->
+<section style="top: 0px; display: block;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">Contents</span><h2>목차</h2><div class="rule"></div></div>
+  <div class="grid g3">
+    <div>
+      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.66em; margin-bottom:8px;">🔎 배경 &amp; 설계</div>
+      <ul class="clean">
+        <li><strong>01</strong> 프로젝트 추진 배경</li>
+        <li><strong>02</strong> 목표 &amp; 구현 범위</li>
+        <li><strong>03</strong> 시스템 아키텍처</li>
+        <li><strong>04</strong> 보험 할증 계산 로직</li>
+        <li><strong>05</strong> 기술 스택</li>
+      </ul>
+    </div>
+    <div>
+      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.66em; margin-bottom:8px;">🧠 데이터 &amp; 모델</div>
+      <ul class="clean">
+        <li><strong>06</strong> 데이터 수집 &amp; 활용</li>
+        <li><strong>07</strong> AI 모델 — YOLOv8-seg</li>
+        <li><strong>08</strong> 학습 설정 &amp; 분포</li>
+        <li><strong>09</strong> 학습 곡선 — mAP</li>
+        <li><strong>10</strong> 학습 곡선 — Loss</li>
+      </ul>
+    </div>
+    <div>
+      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.66em; margin-bottom:8px;">💡 분석 &amp; 회고</div>
+      <ul class="clean">
+        <li><strong>11</strong> 학습 샘플 &amp; 성능</li>
+        <li><strong>12</strong> 학습 전략 회고</li>
+        <li><strong>13</strong> RAG 기반 상담</li>
+        <li><strong>14</strong> 트러블슈팅</li>
+        <li><strong>15</strong> 향후 계획</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 프로젝트 추진 배경 -->
+<section style="top: 0px; display: block;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">01 · Background</span><h2>프로젝트 추진 배경</h2><div class="rule"></div></div>
+  <div class="vs-wrap">
+    <div class="card">
+      <h3>😟 기존 방식의 한계</h3>
+      <ul class="clean">
+        <li>보험 처리 시 <em>3년 할증 폭탄</em>을 미리 알기 어려움</li>
+        <li>수리비를 몰라 <em>정비소에 전적으로 의존</em></li>
+        <li>"보험 vs 자비" 손익 계산을 일반인이 못 함</li>
+        <li>보험 약관은 <em>수백 페이지</em>라 확인 곤란</li>
+      </ul>
+    </div>
+    <div class="vs-badge">VS</div>
+    <div class="card">
+      <h3>✨ CarCheck의 해결</h3>
+      <ul class="clean">
+        <li>AI가 손상 부위·종류를 <em>자동 감지</em></li>
+        <li>실제 견적 데이터로 <em>수리비 추정</em></li>
+        <li>할증까지 계산해 <em>손익 즉시 비교</em></li>
+        <li>약관 근거로 <em>AI 상담</em>까지 원스톱</li>
+      </ul>
+    </div>
+  </div>
+  <p style="text-align:center; margin-top:22px; font-size:0.78em; color:var(--text-dim);">
+    한 줄 요약 — <strong>"사진만 올리면 보험 vs 자비, 뭐가 이득인지 알려주는 AI 상담 서비스"</strong></p>
+</section>
+
+<!-- 4. 목표 & 구현 범위 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">02 · Goals &amp; Scope</span><h2>프로젝트 목표 &amp; 구현 범위</h2><div class="rule"></div></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="color:var(--neon-cyan);">🎯 핵심 목표</h3>
+      <ul class="clean">
+        <li><strong>손상 자동 인식</strong> — 사진에서 부위·종류 감지</li>
+        <li><strong>수리비 정량화</strong> — 실제 견적 기반 추정</li>
+        <li><strong>손익 의사결정</strong> — 보험/자비 유불리 계산</li>
+        <li><strong>근거 기반 상담</strong> — 약관 인용 AI 챗봇</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--green);">🧩 구현 범위</h3>
+      <ul class="clean">
+        <li>YOLOv8-seg 손상 <strong>세그멘테이션</strong> 모델 학습</li>
+        <li>SQLite 견적 DB + <strong>할증 계산 로직</strong></li>
+        <li>ChromaDB <strong>RAG</strong> + Gemma2 LLM 상담</li>
+        <li>Streamlit <strong>챗봇형 웹앱</strong> (멀티페이지)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5. 시스템 아키텍처 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">03 · Architecture</span><h2>시스템 아키텍처</h2><div class="rule"></div></div>
+  <div class="flow">
+    <div class="node"><span class="ico">📷</span><div class="t">사진 업로드</div><div class="d">Streamlit</div></div>
+    <span class="ar">→</span>
+    <div class="node"><span class="ico">🎯</span><div class="t">손상 감지</div><div class="d">YOLOv8-seg</div></div>
+    <span class="ar">→</span>
+    <div class="node"><span class="ico">💰</span><div class="t">수리비 추정</div><div class="d">견적 DB</div></div>
+    <span class="ar">→</span>
+    <div class="node"><span class="ico">📊</span><div class="t">할증 계산</div><div class="d">손보협회 기준</div></div>
+    <span class="ar">→</span>
+    <div class="node"><span class="ico">🤖</span><div class="t">RAG 상담</div><div class="d">Gemma2</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:22px;">
+    <div class="card" style="padding:14px 16px;"><h3 style="font-size:0.82em;">🎯 Vision</h3><p>무엇이 · 어디가 손상됐나 — 픽셀 단위 마스크로 부위·유형 식별</p></div>
+    <div class="card" style="padding:14px 16px;"><h3 style="font-size:0.82em;">💰 Data</h3><p>얼마 드나 — 견적 DB 공임 + 할증 규칙으로 손익 계산</p></div>
+    <div class="card" style="padding:14px 16px;"><h3 style="font-size:0.82em;">🤖 LLM</h3><p>어떻게 할까 — 약관 검색(RAG) 기반 맞춤 상담</p></div>
+  </div>
+  <aside class="notes">Vision, Data, LLM 세 축을 하나의 파이프라인으로 결합. 다음 슬라이드에서 할증 계산 로직을 자세히 설명.</aside>
+</section>
+
+<!-- 6. 보험 할증 계산 로직 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">04 · Surcharge Logic</span><h2>보험 할증 계산 로직</h2><div class="rule"></div></div>
+  <div class="glayout">
+    <div class="gleft">
+      <table class="data">
+        <thead><tr><th>수리비 구간</th><th>할증률</th><th>할증 기간</th></tr></thead>
+        <tbody>
+          <tr><td>50만원 미만</td><td>연 10%</td><td>1년</td></tr>
+          <tr><td>50만 ~ 150만원</td><td>연 10%</td><td>2년</td></tr>
+          <tr><td>150만원 이상</td><td>연 15%</td><td>3년</td></tr>
+        </tbody>
+      </table>
+      <div class="formula">
+        연간 인상액 = <span class="eq">연 보험료 × 할증률</span> &nbsp;|&nbsp;
+        총 인상액 = <span class="eq">연간 인상액 × 기간</span>
+      </div>
+    </div>
+    <div class="gright">
+      <div class="panel p-obs"><div class="ph">📐 추천 기준</div><div class="pb">수리비 ≤ 총 인상액 → <b style="color:var(--green)">자비 처리</b><br>수리비 &gt; 총 인상액 → <b style="color:var(--neon-cyan)">보험 처리</b></div></div>
+      <div class="example">
+        <div style="color:#fff; font-weight:700; margin-bottom:5px;">💡 예시</div>
+        연 보험료 <b>60만원</b>, 수리비 <b>45만원</b><br>
+        → 50만 미만 → 1년 10% → <b>6만원 인상</b><br>
+        → 자비 45만 vs 보험 6만 → <b style="color:var(--neon-cyan)">보험 처리 유리</b>
+      </div>
+      <div class="panel p-cau"><div class="ph">⚠️ 주의</div><div class="pb">손보협회 공개 기준의 근사치. 실제 할증은 보험사·특약·사고 이력에 따라 달라짐.</div></div>
+    </div>
+  </div>
+  <aside class="notes">수리비 구간에 따라 할증률·기간이 달라진다. 수리비가 총 할증액보다 작으면 자비, 크면 보험. 이 손익 분기점을 자동 계산하는 것이 핵심. 예시로 설명할 것.</aside>
+</section>
+
+<!-- 7. 기술 스택 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">05 · Tech Stack</span><h2>기술 스택</h2><div class="rule"></div></div>
+  <div class="grid g2">
+    <div class="card"><h3>🎯 AI / Vision</h3><div style="margin-top:6px;">
+      <span class="chip"><span class="t">YOLOv8n-seg</span>Segmentation</span>
+      <span class="chip"><span class="t">Ultralytics</span>학습·추론</span>
+      <span class="chip"><span class="t">PyTorch</span>딥러닝</span>
+      <span class="chip"><span class="t">OpenCV</span>이미지</span></div></div>
+    <div class="card"><h3>🤖 LLM / RAG</h3><div style="margin-top:6px;">
+      <span class="chip"><span class="t">Ollama · Gemma2</span>로컬</span>
+      <span class="chip"><span class="t">Groq · LLaMA 3.3</span>배포</span>
+      <span class="chip"><span class="t">Gemini 2.5</span>비상 fallback</span>
+      <span class="chip"><span class="t">ChromaDB</span>벡터 DB</span>
+      <span class="chip"><span class="t">MiniLM</span>한국어 임베딩</span>
+      <span class="chip"><span class="t">LangChain</span>RAG</span></div></div>
+    <div class="card"><h3>🗄️ Backend / Data</h3><div style="margin-top:6px;">
+      <span class="chip"><span class="t">Python</span>서비스</span>
+      <span class="chip"><span class="t">SQLite</span>견적 DB</span>
+      <span class="chip"><span class="t">Pandas·NumPy</span>처리</span></div></div>
+    <div class="card"><h3>🖥️ Frontend / Infra</h3><div style="margin-top:6px;">
+      <span class="chip"><span class="t">Streamlit</span>웹앱</span>
+      <span class="chip"><span class="t">HF Spaces</span>배포</span>
+      <span class="chip"><span class="t">HF Hub</span>모델 저장</span>
+      <span class="chip"><span class="t">Colab T4</span>학습 GPU</span>
+      <span class="chip"><span class="t">M1 MPS</span>로컬</span></div></div>
+  </div>
+</section>
+
+<!-- 8. 데이터 수집 & 활용 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">06 · Data</span><h2>데이터 수집 &amp; 활용</h2><div class="rule"></div></div>
+  <ol class="num-list">
+    <li><b>AI Hub — 차량 파손 이미지 데이터</b> <span>공공 개방 데이터셋. <em>9,744장</em> 이미지 + 세그멘테이션 라벨 → YOLO 학습용 (4개 손상 클래스)</span></li>
+    <li><b>삼성화재 개인용 자동차보험 약관</b> <span>2025.08.16 개정 · 276p → RAG <em>knowledge</em> 컬렉션, 보상·자기부담금 근거</span></li>
+    <li><b>손해보험협회 할인·할증 기준</b> <span>2024년 공식 기준 → 할증률 계산 로직 + RAG 근거</span></li>
+    <li><b>실제 수리 견적서 데이터</b> <span>SQLite <em>estimates.db</em>. 부위별 평균 공임 → 수리비 추정</span></li>
+  </ol>
+  <p style="text-align:center; margin-top:12px; font-size:0.64em; color:var(--text-dim);">⚠️ 모든 답변에 <strong>출처(약관 페이지)</strong>를 명시해 신뢰도 확보</p>
+</section>
+
+<!-- 9. AI 모델 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">07 · AI Model</span><h2>AI 모델 — YOLOv8-seg</h2><div class="rule"></div></div>
+  <div class="grid g2">
+    <div class="card"><h3>왜 Segmentation 인가?</h3>
+      <p>단순 박스(Detection)가 아닌 <strong>픽셀 단위 마스크</strong>로 감지 → 손상 <em>면적·형태</em>를 파악해 수리 규모 추정에 유리.</p>
+      <div style="margin-top:12px;">
+        <span class="chip"><span class="t">모델</span>YOLOv8n-seg</span>
+        <span class="chip"><span class="t">imgsz</span>640</span>
+        <span class="chip"><span class="t">batch</span>16</span>
+        <span class="chip"><span class="t">Optim</span>AdamW</span></div></div>
+    <div class="card"><h3>4개 손상 클래스 → 작업 매핑</h3>
+      <ul class="clean">
+        <li><strong>Scratched</strong> 긁힘 → 도장</li>
+        <li><strong>Breakage</strong> 파손 → 교환</li>
+        <li><strong>Separated</strong> 분리 → 탈착</li>
+        <li><strong>Crushed</strong> 찌그러짐 → 판금</li>
+      </ul></div>
+  </div>
+  <p style="text-align:center; margin-top:18px; font-size:0.7em; color:var(--text-dim);">
+    감지된 손상 유형 → <em>작업(도장/교환/판금/탈착)</em> → 견적 DB에서 부위별 공임 조회</p>
+</section>
+
+<!-- 10. 학습 설정 & 클래스 분포 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">08 · Training Setup</span><h2>학습 설정 &amp; 클래스 분포</h2><div class="rule"></div></div>
+  <div class="glayout">
+    <div class="gleft"><img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/class_dist.png" alt="클래스 분포"></div>
+    <div class="gright">
+      <table class="data">
+        <thead><tr><th>항목</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>모델</td><td>YOLOv8n-seg</td></tr>
+          <tr><td>Epochs</td><td>100 (Colab)</td></tr>
+          <tr><td>Batch / imgsz</td><td>16 / 640</td></tr>
+          <tr><td>Optimizer</td><td>AdamW</td></tr>
+          <tr><td>Device</td><td>Tesla T4 GPU</td></tr>
+        </tbody>
+      </table>
+      <div class="panel p-cau"><div class="ph">⚠️ 클래스 불균형</div><div class="pb">Scratched가 <b>65%</b> 편중 → 소수 클래스(Crushed) 검출이 약함. 데이터 확장으로 해소 예정.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. 학습 곡선 mAP -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">09 · Metrics</span><h2>학습 곡선 — mAP50</h2><div class="rule"></div></div>
+  <div class="glayout">
+    <div class="gleft"><img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/map_curve.png" alt="mAP 곡선"></div>
+    <div class="gright">
+      <div class="panel p-obs"><div class="ph">👀 관찰</div><div class="pb">Box·Mask mAP50 모두 30 epoch 내내 <b>우상향</b>, 아직 정체되지 않음.</div></div>
+      <div class="panel p-int"><div class="ph">🔍 해석</div><div class="pb">곡선이 계속 오르는 중 = <b>학습 여력 존재</b>. 데이터·epoch을 늘리면 개선 여지.</div></div>
+      <div class="panel p-cau"><div class="ph">⚠️ 주의</div><div class="pb">그래프는 로컬 30 epoch(≈0.15). Colab 100 epoch에서 <b>0.239</b> 달성.</div></div>
+    </div>
+  </div>
+  <aside class="notes">30 epoch 동안 계속 우상향. 정체되지 않았다는 건 더 학습하거나 데이터를 늘리면 개선된다는 신호.</aside>
+</section>
+
+<!-- 12. 학습 곡선 Loss -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">10 · Loss</span><h2>학습 곡선 — Loss &amp; 과적합</h2><div class="rule"></div></div>
+  <div class="glayout">
+    <div class="gleft">
+      <img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/loss_curve.png" alt="Loss 곡선" style="max-height:250px; width:auto; object-fit:contain; margin:0 auto;">
+      <img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/trainval_curve.png" alt="Train vs Val" style="max-height:250px; width:auto; object-fit:contain; margin:0 auto;">
+    </div>
+    <div class="gright">
+      <div class="panel p-obs"><div class="ph">👀 관찰</div><div class="pb">Box·Seg·Cls loss 모두 <b>안정적으로 감소</b> → 학습 정상 수렴.</div></div>
+      <div class="panel p-int"><div class="ph">🔍 해석</div><div class="pb">Train·Val 격차가 크지 않음 → 30 epoch 시점엔 <b>심한 과적합 아님</b>.</div></div>
+      <div class="panel p-cau"><div class="ph">⚠️ 주의</div><div class="pb">소량 데이터 × 100 epoch 조합에선 이 <b>격차가 벌어질 위험</b> (다음 회고).</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 13. 학습 샘플 & 성능 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">11 · Sample &amp; Score</span><h2>학습 샘플 &amp; 성능 요약</h2><div class="rule"></div></div>
+  <div class="glayout">
+    <div class="gleft"><img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/train_sample.jpg" alt="학습 샘플" style="max-height:460px; width:auto; object-fit:contain; margin:0 auto;"></div>
+    <div class="gright">
+      <div class="grid g2" style="gap:10px;">
+        <div class="card" style="text-align:center; padding:14px;"><span class="big">0.239</span><p style="font-size:0.62em;">mAP50 (Box)</p></div>
+        <div class="card" style="text-align:center; padding:14px;"><span class="big">0.212</span><p style="font-size:0.62em;">mAP50 (Mask)</p></div>
+      </div>
+      <div class="panel p-obs"><div class="ph">👀 실제 감지 샘플</div><div class="pb">실제 차량 이미지에 <b>세그멘테이션 마스크</b>가 부위별로 입혀진 학습 배치. Scratched는 안정적으로 감지됨.</div></div>
+      <div class="panel p-int"><div class="ph">🔍 성능 요약</div><div class="pb">100 epoch · T4 GPU · 약 1.5시간. 소수 클래스는 데이터 확장으로 개선 예정.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14. 학습 전략 회고 (에폭) -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">12 · Retrospective</span><h2>학습 전략 회고 — 왜 960장 × 100 epoch?</h2><div class="rule"></div></div>
+  <div class="glayout">
+    <div class="gleft">
+      <table class="data">
+        <thead><tr><th>방식</th><th>총 학습량<br>(image-views)</th><th>다양성</th><th>과적합</th></tr></thead>
+        <tbody>
+          <tr><td>960장 × 100 ep</td><td>96,000</td><td>낮음</td><td>위험 ↑</td></tr>
+          <tr class="hl"><td>9,744장 × 10 ep</td><td class="up">97,440</td><td class="up">높음</td><td class="up">낮음</td></tr>
+        </tbody>
+      </table>
+      <div class="formula" style="font-size:0.72em;">
+        총 연산량은 <span class="eq">거의 동일</span> — 그러나 <span class="eq">데이터 다양성</span>이 일반화를 가른다
+      </div>
+    </div>
+    <div class="gright">
+      <div class="panel p-obs"><div class="ph">👀 사실</div><div class="pb">초기 확보 데이터가 960장뿐 → <b>파이프라인 검증용 baseline</b>으로 100 epoch 학습(0.239).</div></div>
+      <div class="panel p-int"><div class="ph">🔍 통찰</div><div class="pb">"적은 데이터를 여러 번"보다 <b>"많은 데이터를 골고루"</b>가 일반화에 유리. 총 연산량은 같다.</div></div>
+      <div class="panel p-cau"><div class="ph">✅ 결론</div><div class="pb">데이터 10배 확장(→9,744장)했으니 epoch은 <b>100→10</b>이 정석. Colab 할당량 재개 후 재학습 예정.</div></div>
+    </div>
+  </div>
+  <aside class="notes">이 지적은 정확하다. 두 방식은 총 연산량이 거의 같지만, 960×100은 같은 이미지를 100번 봐서 과적합 위험, 9744×10은 10배 다양한 샘플을 봐서 일반화가 좋다. 그래서 데이터를 늘린 지금은 epoch을 줄이는 게 맞다.</aside>
+</section>
+
+<!-- 15. RAG 상담 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">13 · RAG + LLM</span><h2>RAG 기반 보험 상담</h2><div class="rule"></div></div>
+  <div class="grid g2">
+    <div class="card"><h3>🔎 Retrieval (검색)</h3><ul class="clean">
+      <li><strong>ChromaDB</strong> 2개 컬렉션</li>
+      <li><em>repair_cases</em> — 유사 견적 사례</li>
+      <li><em>knowledge</em> — 약관·할증 규정</li>
+      <li>임베딩: <strong>multilingual-MiniLM</strong></li></ul></div>
+    <div class="card"><h3>🤖 Generation (생성)</h3><ul class="clean">
+      <li><strong>로컬</strong> — Gemma2 · Ollama</li>
+      <li><strong>배포</strong> — Groq API · LLaMA 3.3</li>
+      <li><strong>비상</strong> — Gemini 2.5-flash fallback</li>
+      <li>약관 인용 → <strong>환각 감소</strong></li>
+      <li>자동차 보험 외 질문 <em>거절</em></li></ul></div>
+  </div>
+  <p style="text-align:center; margin-top:20px; font-size:0.7em; color:var(--text-dim);">
+    분석 결과 + 대화 히스토리 + 검색된 약관을 <strong>system prompt에 주입</strong> → 근거 기반 맞춤 상담</p>
+</section>
+
+<!-- 16. 트러블슈팅 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">14 · Troubleshooting</span><h2>트러블슈팅</h2><div class="rule"></div></div>
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div class="card" style="padding:12px 18px;">
+      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🧠 학습 &amp; 개발</div>
+      <div class="trouble"><div class="p">🐛 Colab 세션 끊김으로 학습 유실</div><span class="arrow">→</span><div class="s">✅ <b>epoch별 체크포인트 콜백</b> 자동 복구</div></div>
+      <div class="trouble"><div class="p">🐛 클래스 불균형 — Scratched 65% 편중, 소수 클래스 미검출</div><span class="arrow">→</span><div class="s">✅ AI Hub 데이터로 소수 클래스 <b>15~18배 확장</b></div></div>
+      <div class="trouble"><div class="p">🐛 Streamlit 이미지 유실 — session_state PIL 객체 깨짐</div><span class="arrow">→</span><div class="s">✅ <b>bytes로 직렬화</b>해 재실행에도 유지</div></div>
+    </div>
+    <div class="card" style="padding:12px 18px;">
+      <div style="color:var(--neon-blue); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🚀 HF Spaces 배포</div>
+      <div class="trouble"><div class="p">🐛 Ollama는 로컬 전용 — 클라우드 서버에 LLM 없음</div><span class="arrow">→</span><div class="s">✅ <b>Groq API</b> 교체 · 4개 모델 fallback 체인</div></div>
+      <div class="trouble"><div class="p">🐛 HF Spaces가 <code>best.pt</code> push 거부 — Git LFS도 차단</div><span class="arrow">→</span><div class="s">✅ <b>HF Hub 모델 저장소</b> 분리 업로드 · 앱 시작 시 자동 다운로드</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 17. 향후 계획 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">15 · Next</span><h2>향후 계획</h2><div class="rule"></div></div>
+  <div class="grid g2">
+    <div class="card"><h3>🎯 모델 고도화</h3><ul class="clean">
+      <li>9,744장 <strong>풀 재학습</strong> (10 epoch) → mAP 0.40+ 목표</li>
+      <li>소수 클래스 <em>검출력 강화</em></li>
+      <li>차종·연식별 <em>수리비 정밀화</em></li></ul></div>
+    <div class="card"><h3>🚀 서비스 확장</h3><ul class="clean">
+      <li>✅ <strong>HF Spaces 배포 완료</strong> — Groq + Gemini fallback</li>
+      <li>실제 <strong>보험사 API</strong> 연동 검토</li>
+      <li>모바일 촬영 <em>가이드 UX</em></li></ul></div>
+  </div>
+  <p style="text-align:center; margin-top:26px; font-size:0.76em; color:var(--text-dim);">
+    <strong>Vision + Data + LLM</strong> 결합으로 운전자의 실질적 의사결정을 돕는 방향으로 발전</p>
+</section>
+
+<!-- 18. 감사합니다 -->
+<section data-background-color="#0A1628" class="intro-slide has-dark-background future" style="top: 0px; display: none;" hidden="" aria-hidden="true">
+  <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
+    <div class="brand-reveal" style="animation-delay:0.2s;"><h1>감사합니다</h1></div>
+    <div class="sub-reveal" style="animation-delay:0.6s;"><p>CarCheck — AI 차량 손상 분석 &amp; 보험 상담 서비스 &nbsp;·&nbsp; 이은석</p></div>
+  </div>
+</section>
+
+</div>
+<div class="backgrounds"><div class="slide-background intro-slide present" data-background-hash="0#0A1628nullnullnullnullnull" data-loaded="true" style="background-color: rgb(10, 22, 40); display: block;"><div class="slide-background-content"></div></div><div class="slide-background future" data-loaded="true" style="display: block;"><div class="slide-background-content"></div></div><div class="slide-background future" data-loaded="true" style="display: block;"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background future" style="display: none;" data-loaded="true"><div class="slide-background-content"></div></div><div class="slide-background intro-slide future" data-background-hash="0#0A1628nullnullnullnullnull" style="background-color: rgb(10, 22, 40); display: none;" data-loaded="true"><div class="slide-background-content"></div></div></div><div class="slide-number" style="display: block;"><a href="file:///Users/eunseoklee/Desktop/car-damage-analyzer/presentation.html#/">
+					<span class="slide-number-a">1</span>
+					<span class="slide-number-delimiter">/</span>
+					<span class="slide-number-b">18</span>
+					</a></div><aside class="controls" data-controls-layout="bottom-right" data-controls-back-arrows="faded" style="display: block;"><button class="navigate-left" aria-label="previous slide" disabled="disabled"><div class="controls-arrow"></div></button>
+			<button class="navigate-right enabled" aria-label="next slide"><div class="controls-arrow"></div></button>
+			<button class="navigate-up" aria-label="above slide" disabled="disabled"><div class="controls-arrow"></div></button>
+			<button class="navigate-down" aria-label="below slide" disabled="disabled"><div class="controls-arrow"></div></button></aside><div class="progress" style="display: block;"><span style="transform: scaleX(0);"></span></div><div class="speaker-notes" data-prevent-swipe="" tabindex="0"></div><div class="pause-overlay"><button class="resume-button">Resume presentation</button></div><div class="aria-status" aria-live="polite" aria-atomic="true" style="position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px);">Scratched 92% Crushed 78% Breakage 66% CarCheck AI 차량 손상 분석 &nbsp;·&nbsp; 보험 처리 비용 비교 &nbsp;·&nbsp; 전문 상담 이은석 → 방향키로 넘기기 </div></div>
+
+<div class="footer-brand">🚗 <b>CarCheck</b></div>
+
+<script src="./CarCheck · AI 차량 손상 분석 발표_files/reveal.js"></script>
+<script src="./CarCheck · AI 차량 손상 분석 발표_files/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash:true, slideNumber:'c/t', transition:'slide', backgroundTransition:'fade',
+    width:1280, height:720, margin:0.055,
+    plugins:[ RevealNotes ],
+  });
+</script>
+
+
+</body></html>
