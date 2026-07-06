@@ -2,7 +2,12 @@ import os
 from groq import Groq
 from services.rag_service import retrieve_similar_cases, retrieve_knowledge
 
-MODEL   = "llama-3.3-70b-versatile"
+MODELS = [
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+    "llama3-8b-8192",
+    "mixtral-8x7b-32768",
+]
 _client = None
 
 
@@ -11,6 +16,49 @@ def _get_client() -> Groq:
     if _client is None:
         _client = Groq(api_key=os.environ["GROQ_API_KEY"])
     return _client
+
+
+def _is_model_error(e: Exception) -> bool:
+    msg = str(e)
+    return any(k in msg for k in ("decommissioned", "model_not_found", "model_decommissioned", "not found"))
+
+
+def _chat_gemini(messages: list) -> str | None:
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return None
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        # system + user 메시지를 하나의 프롬프트로 합침
+        combined = "\n\n".join(m["content"] for m in messages if m["role"] != "assistant")
+        response = model.generate_content(combined)
+        return response.text.strip()
+    except Exception:
+        return None
+
+
+def _chat(messages: list, max_tokens: int) -> str:
+    last_err = None
+    # 1차: Groq 모델 순서대로 시도
+    for model in MODELS:
+        try:
+            resp = _get_client().chat.completions.create(
+                model=model, messages=messages,
+                temperature=0.1, max_tokens=max_tokens,
+            )
+            return resp.choices[0].message.content.strip()
+        except Exception as e:
+            if _is_model_error(e):
+                last_err = e
+                continue
+            raise
+    # 2차: Gemini 비상 fallback
+    gemini_result = _chat_gemini(messages)
+    if gemini_result:
+        return gemini_result
+    return f"죄송합니다, 현재 사용 가능한 모델이 없습니다. ({last_err})"
 
 _SYSTEM_BASE = """당신은 자동차 손상 보험 상담 전문 AI입니다.
 오직 아래 주제에만 답변하세요:
@@ -145,11 +193,7 @@ def answer_question(user_query: str, chat_history: list, analysis_context: str =
     messages.append({"role": "user", "content": user_query})
 
     try:
-        resp = _get_client().chat.completions.create(
-            model=MODEL, messages=messages,
-            temperature=0.1, max_tokens=500,
-        )
-        return resp.choices[0].message.content.strip()
+        return _chat(messages, max_tokens=500)
     except Exception as e:
         return f"죄송합니다, 답변 생성 중 오류가 발생했습니다. ({e})"
 
@@ -160,12 +204,7 @@ def generate_report(damage_result: dict, repair_cost: dict, insurance_result: di
     prompt = _build_prompt(damage_result, repair_cost, insurance_result,
                            similar_cases, knowledge)
     try:
-        resp = _get_client().chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.1, max_tokens=700,
-        )
-        return resp.choices[0].message.content.strip()
+        return _chat([{"role": "user", "content": prompt}], max_tokens=700)
     except Exception as e:
         return _fallback_report(damage_result, repair_cost, insurance_result, error=str(e))
 
