@@ -9,6 +9,7 @@ venv/
 
 # ── 대용량 데이터 (GitHub 제외) ──
 data/yolo_dataset/
+data/*.zip
 data/rag_db/
 data/knowledge/*.pdf
 data/*.db
