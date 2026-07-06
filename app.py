@@ -85,6 +85,25 @@ st.markdown("""
     box-shadow: 0 2px 10px rgba(27,58,107,0.06) !important;
 }
 
+[data-testid="stFormSubmitButton"] > button {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+    color: white !important; border: none !important; border-radius: 12px !important;
+    font-weight: 700 !important; font-size: 1rem !important;
+    padding: 0.65rem 1.5rem !important;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.28) !important;
+    transition: all 0.2s ease !important;
+}
+[data-testid="stFormSubmitButton"] > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(37,99,235,0.38) !important;
+}
+
+[data-baseweb="input"] { border-color: #E0E8FF !important; }
+[data-baseweb="input"]:focus-within {
+    border-color: #2563EB !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12) !important;
+}
+
 hr { border-color: #E0E8FF !important; }
 
 [data-testid="stMetric"] {
