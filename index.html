@@ -326,9 +326,7 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
       <span class="chip"><span class="t">PyTorch</span>딥러닝</span>
       <span class="chip"><span class="t">OpenCV</span>이미지</span></div></div>
     <div class="card"><h3>🤖 LLM / RAG</h3><div style="margin-top:6px;">
-      <span class="chip"><span class="t">Ollama · Gemma2</span>로컬</span>
-      <span class="chip"><span class="t">Groq · LLaMA 3.3</span>배포</span>
-      <span class="chip"><span class="t">Gemini 2.5</span>비상 fallback</span>
+      <span class="chip"><span class="t">Ollama · Gemma2</span>로컬 LLM</span>
       <span class="chip"><span class="t">ChromaDB</span>벡터 DB</span>
       <span class="chip"><span class="t">MiniLM</span>한국어 임베딩</span>
       <span class="chip"><span class="t">LangChain</span>RAG</span></div></div>
@@ -338,8 +336,6 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
       <span class="chip"><span class="t">Pandas·NumPy</span>처리</span></div></div>
     <div class="card"><h3>🖥️ Frontend / Infra</h3><div style="margin-top:6px;">
       <span class="chip"><span class="t">Streamlit</span>웹앱</span>
-      <span class="chip"><span class="t">HF Spaces</span>배포</span>
-      <span class="chip"><span class="t">HF Hub</span>모델 저장</span>
       <span class="chip"><span class="t">Colab T4</span>학습 GPU</span>
       <span class="chip"><span class="t">M1 MPS</span>로컬</span></div></div>
   </div>
@@ -482,9 +478,8 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
       <li><em>knowledge</em> — 약관·할증 규정</li>
       <li>임베딩: <strong>multilingual-MiniLM</strong></li></ul></div>
     <div class="card"><h3>🤖 Generation (생성)</h3><ul class="clean">
-      <li><strong>로컬</strong> — Gemma2 · Ollama</li>
-      <li><strong>배포</strong> — Groq API · LLaMA 3.3</li>
-      <li><strong>비상</strong> — Gemini 2.5-flash fallback</li>
+      <li><strong>Gemma2</strong> · Ollama 로컬</li>
+      <li><em>ollama.chat()</em> 멀티턴</li>
       <li>약관 인용 → <strong>환각 감소</strong></li>
       <li>자동차 보험 외 질문 <em>거절</em></li></ul></div>
   </div>
@@ -495,18 +490,14 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 <!-- 16. 트러블슈팅 -->
 <section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
   <div class="slide-head"><span class="kicker">14 · Troubleshooting</span><h2>트러블슈팅</h2><div class="rule"></div></div>
-  <div style="display:flex; flex-direction:column; gap:12px;">
-    <div class="card" style="padding:12px 18px;">
-      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🧠 학습 &amp; 개발</div>
-      <div class="trouble"><div class="p">🐛 Colab 세션 끊김으로 학습 유실</div><span class="arrow">→</span><div class="s">✅ <b>epoch별 체크포인트 콜백</b> 자동 복구</div></div>
-      <div class="trouble"><div class="p">🐛 클래스 불균형 — Scratched 65% 편중, 소수 클래스 미검출</div><span class="arrow">→</span><div class="s">✅ AI Hub 데이터로 소수 클래스 <b>15~18배 확장</b></div></div>
-      <div class="trouble"><div class="p">🐛 Streamlit 이미지 유실 — session_state PIL 객체 깨짐</div><span class="arrow">→</span><div class="s">✅ <b>bytes로 직렬화</b>해 재실행에도 유지</div></div>
-    </div>
-    <div class="card" style="padding:12px 18px;">
-      <div style="color:var(--neon-blue); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🚀 HF Spaces 배포</div>
-      <div class="trouble"><div class="p">🐛 Ollama는 로컬 전용 — 클라우드 서버에 LLM 없음</div><span class="arrow">→</span><div class="s">✅ <b>Groq API</b> 교체 · 4개 모델 fallback 체인</div></div>
-      <div class="trouble"><div class="p">🐛 HF Spaces가 <code>best.pt</code> push 거부 — Git LFS도 차단</div><span class="arrow">→</span><div class="s">✅ <b>HF Hub 모델 저장소</b> 분리 업로드 · 앱 시작 시 자동 다운로드</div></div>
-    </div>
+  <div class="card" style="padding:14px 22px;">
+    <div class="trouble"><div class="p">🐛 Colab 경로 중복 — <code>runs/segment/runs/segment/</code></div><span class="arrow">→</span><div class="s">✅ 상대 → <b>절대경로</b>로 project 지정</div></div>
+    <div class="trouble"><div class="p">🐛 resume이 옛 <code>args.yaml</code> 사용 (설정 무시)</div><span class="arrow">→</span><div class="s">✅ Drive 체크포인트 <b>초기화 후</b> 재학습</div></div>
+    <div class="trouble"><div class="p">🐛 새 데이터 미반영 — 960장만 로드</div><span class="arrow">→</span><div class="s">✅ Drive에 새 <b>zip 재업로드</b></div></div>
+    <div class="trouble"><div class="p">🐛 Colab 세션 끊김으로 학습 유실</div><span class="arrow">→</span><div class="s">✅ <b>epoch별 체크포인트 콜백</b> 자동 복구</div></div>
+    <div class="trouble"><div class="p">🐛 클래스 불균형 — Scratched 65% 편중, 소수 클래스 미검출</div><span class="arrow">→</span><div class="s">✅ AI Hub 데이터로 소수 클래스 <b>15~18배 확장</b></div></div>
+    <div class="trouble"><div class="p">🐛 Streamlit 이미지 유실 — session_state PIL 객체 깨짐</div><span class="arrow">→</span><div class="s">✅ <b>bytes로 저장</b>해 재실행에도 유지</div></div>
+    <div class="trouble"><div class="p">🐛 챗봇이 범위 밖 질문(점심메뉴)에도 답변</div><span class="arrow">→</span><div class="s">✅ system prompt에 <b>주제 제한</b> 규칙 추가</div></div>
   </div>
 </section>
 
@@ -519,8 +510,8 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
       <li>소수 클래스 <em>검출력 강화</em></li>
       <li>차종·연식별 <em>수리비 정밀화</em></li></ul></div>
     <div class="card"><h3>🚀 서비스 확장</h3><ul class="clean">
-      <li>✅ <strong>HF Spaces 배포 완료</strong> — Groq + Gemini fallback</li>
       <li>실제 <strong>보험사 API</strong> 연동 검토</li>
+      <li><em>Streamlit Cloud</em> 배포</li>
       <li>모바일 촬영 <em>가이드 UX</em></li></ul></div>
   </div>
   <p style="text-align:center; margin-top:26px; font-size:0.76em; color:var(--text-dim);">
