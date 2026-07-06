@@ -2,7 +2,7 @@ import os
 from groq import Groq
 from services.rag_service import retrieve_similar_cases, retrieve_knowledge
 
-MODEL   = "gemma2-9b-it"
+MODEL   = "llama-3.3-70b-versatile"
 _client = None
 
 
