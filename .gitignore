@@ -14,8 +14,7 @@ data/rag_db/
 data/knowledge/*.pdf
 data/*.db
 
-# ── 모델 가중치 (재생성 가능) ──
-models/*.pt
+# ── 모델 가중치 ──
 models/*.onnx
 models/car_damage_seg/
 yolov8n-seg.pt

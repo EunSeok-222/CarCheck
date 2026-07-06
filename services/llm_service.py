@@ -1,7 +1,16 @@
-import ollama
+import os
+from groq import Groq
 from services.rag_service import retrieve_similar_cases, retrieve_knowledge
 
-MODEL = "gemma2:latest"
+MODEL   = "gemma2-9b-it"
+_client = None
+
+
+def _get_client() -> Groq:
+    global _client
+    if _client is None:
+        _client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    return _client
 
 _SYSTEM_BASE = """당신은 자동차 손상 보험 상담 전문 AI입니다.
 오직 아래 주제에만 답변하세요:
@@ -136,9 +145,11 @@ def answer_question(user_query: str, chat_history: list, analysis_context: str =
     messages.append({"role": "user", "content": user_query})
 
     try:
-        resp = ollama.chat(model=MODEL, messages=messages,
-                           options={"temperature": 0.1, "num_predict": 500})
-        return resp["message"]["content"].strip()
+        resp = _get_client().chat.completions.create(
+            model=MODEL, messages=messages,
+            temperature=0.1, max_tokens=500,
+        )
+        return resp.choices[0].message.content.strip()
     except Exception as e:
         return f"죄송합니다, 답변 생성 중 오류가 발생했습니다. ({e})"
 
@@ -149,12 +160,12 @@ def generate_report(damage_result: dict, repair_cost: dict, insurance_result: di
     prompt = _build_prompt(damage_result, repair_cost, insurance_result,
                            similar_cases, knowledge)
     try:
-        response = ollama.generate(
+        resp = _get_client().chat.completions.create(
             model=MODEL,
-            prompt=prompt,
-            options={"temperature": 0.1, "num_predict": 700},
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1, max_tokens=700,
         )
-        return response["response"].strip()
+        return resp.choices[0].message.content.strip()
     except Exception as e:
         return _fallback_report(damage_result, repair_cost, insurance_result, error=str(e))
 
