@@ -22,7 +22,15 @@ yolov8n-seg.pt
 yolov8n.pt
 runs/
 
+# ── 배포 불필요 파일 ──
+presentation_assets/
+presentation.html
+발표대본.md
+train_colab.ipynb
+train_yolo_notebook.ipynb
+
 # ── 시스템/에디터 ──
 .DS_Store
 *.log
 .streamlit/secrets.toml
+.streamlit/secrets.tom
