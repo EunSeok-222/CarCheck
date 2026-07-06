@@ -3,8 +3,15 @@ from services.rag_service import retrieve_similar_cases, retrieve_knowledge
 
 MODEL = "gemma2:latest"
 
-_SYSTEM_BASE = """당신은 자동차 보험 전문 상담 AI입니다.
-아래 공식 문서를 근거로 사용자의 보험 관련 질문에 한국어로 친절하게 답변하세요.
+_SYSTEM_BASE = """당신은 자동차 손상 보험 상담 전문 AI입니다.
+오직 아래 주제에만 답변하세요:
+- 자동차 보험 (가입, 보상, 할증, 할인, 약관)
+- 차량 손상 수리 및 비용
+- 보험 처리 vs 자비 처리 비교
+- 자동차 사고 관련 절차
+
+위 주제와 무관한 질문(음식, 날씨, 일상 대화 등)은 반드시 다음 문장으로만 답변하세요:
+"죄송합니다, 저는 자동차 보험 및 차량 손상 관련 질문만 답변드릴 수 있어요. 보험 관련 궁금한 점이 있으시면 질문해주세요! 😊"
 
 데이터 출처:
 - 삼성화재 개인용 자동차보험 약관 (2025.08.16 개정)
@@ -130,7 +137,7 @@ def answer_question(user_query: str, chat_history: list, analysis_context: str =
 
     try:
         resp = ollama.chat(model=MODEL, messages=messages,
-                           options={"temperature": 0.4, "num_predict": 500})
+                           options={"temperature": 0.1, "num_predict": 500})
         return resp["message"]["content"].strip()
     except Exception as e:
         return f"죄송합니다, 답변 생성 중 오류가 발생했습니다. ({e})"
@@ -145,7 +152,7 @@ def generate_report(damage_result: dict, repair_cost: dict, insurance_result: di
         response = ollama.generate(
             model=MODEL,
             prompt=prompt,
-            options={"temperature": 0.4, "num_predict": 700},
+            options={"temperature": 0.1, "num_predict": 700},
         )
         return response["response"].strip()
     except Exception as e:
