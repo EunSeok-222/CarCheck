@@ -3,6 +3,19 @@ from services.rag_service import retrieve_similar_cases, retrieve_knowledge
 
 MODEL = "gemma2:latest"
 
+_SYSTEM_BASE = """당신은 자동차 보험 전문 상담 AI입니다.
+아래 공식 문서를 근거로 사용자의 보험 관련 질문에 한국어로 친절하게 답변하세요.
+
+데이터 출처:
+- 삼성화재 개인용 자동차보험 약관 (2025.08.16 개정)
+- 손해보험협회 자동차보험료 할인·할증 기준 (2024년)
+
+답변 규칙:
+1. 위 문서에서 관련 내용을 찾아 근거를 인용 (예: "삼성화재 약관 기준에 따르면...")
+2. 문서에 없는 내용은 "일반적으로..." 로 구분
+3. 마크다운 형식, 간결하게
+4. 끝에 항상: ⚠️ 실제 처리 시 가입 보험사 약관을 직접 확인하세요."""
+
 ACTION_KO = {
     "coating":     "도색",
     "exchange":    "교체",
@@ -91,6 +104,36 @@ def _build_kb_queries(damage_result: dict) -> list:
     for d in damage_result.get("damages", []):
         queries.append(f"{d.get('part','')} {d.get('type_ko','')} 수리 보상")
     return queries
+
+
+def answer_question(user_query: str, chat_history: list, analysis_context: str = "") -> str:
+    """
+    보험 관련 추가 질문에 RAG + ollama.chat()으로 답변.
+    chat_history: [{"role": "user"|"assistant", "content": "..."}]
+    """
+    # RAG: 질문과 관련된 약관·할증 규정 검색
+    knowledge = retrieve_knowledge([user_query], n_results=4)
+    rag_text = ""
+    if knowledge:
+        rag_text = "\n\n[검색된 관련 규정]\n" + "\n".join(
+            f"- [{k['source']} p.{k['page']}] {k['text']}" for k in knowledge
+        )
+
+    system_content = _SYSTEM_BASE + rag_text
+    if analysis_context:
+        system_content += f"\n\n[이번 상담 차량 분석 결과]\n{analysis_context}"
+
+    messages = [{"role": "system", "content": system_content}]
+    # 최근 6턴만 유지 (컨텍스트 과부하 방지)
+    messages += chat_history[-12:]
+    messages.append({"role": "user", "content": user_query})
+
+    try:
+        resp = ollama.chat(model=MODEL, messages=messages,
+                           options={"temperature": 0.4, "num_predict": 500})
+        return resp["message"]["content"].strip()
+    except Exception as e:
+        return f"죄송합니다, 답변 생성 중 오류가 발생했습니다. ({e})"
 
 
 def generate_report(damage_result: dict, repair_cost: dict, insurance_result: dict) -> str:
