@@ -1,4 +1,5 @@
 import io
+import re
 import streamlit as st
 from PIL import Image
 
@@ -46,6 +47,8 @@ st.markdown("""
     border: 1px solid #E0E8FF !important;
     box-shadow: 0 2px 10px rgba(27,58,107,0.07) !important;
     margin-bottom: 10px !important;
+    padding-right: 24px !important;
+    margin-right: 4px !important;
 }
 
 [data-testid="stChatInput"] > div {
@@ -212,6 +215,12 @@ def _comparison_html(ins: dict, total: int, rec: str) -> str:
     )
     return f'<div style="display:flex;gap:14px;margin:10px 0;">{ins_card}{self_card}</div>'
 
+# ── 마크다운 → HTML (사용자 버블용) ───────────────────────────────────
+def _md_simple(text: str) -> str:
+    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r'\*(.+?)\*',     r'<em>\1</em>',         text)
+    return text
+
 # ── 이미지 → bytes ────────────────────────────────────────────────────
 def _to_bytes(img) -> bytes:
     if isinstance(img, bytes):
@@ -224,12 +233,25 @@ def _to_bytes(img) -> bytes:
 # ── 메시지 렌더링 ─────────────────────────────────────────────────────
 def render_messages():
     for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-            if "image" in msg:
-                st.image(msg["image"], use_container_width=True)
-            if "html" in msg:
-                st.markdown(msg["html"], unsafe_allow_html=True)
+        if msg["role"] == "user":
+            st.markdown(
+                f'<div style="display:flex;justify-content:flex-end;margin:4px 0 12px;">'
+                f'<div style="background:#EFF6FF;border:1.5px solid #BFDBFE;'
+                f'border-radius:18px 18px 4px 18px;padding:11px 18px;max-width:78%;'
+                f'color:#1E3A5F;font-weight:500;font-size:0.95rem;'
+                f'box-shadow:0 2px 8px rgba(37,99,235,0.08);">'
+                f'{_md_simple(msg["content"])}</div></div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            with st.chat_message("assistant"):
+                st.markdown(msg["content"])
+                if "image" in msg:
+                    col_img, _ = st.columns([11, 1])
+                    with col_img:
+                        st.image(msg["image"], use_container_width=True)
+                if "html" in msg:
+                    st.markdown(msg["html"], unsafe_allow_html=True)
 
 # ── 렌더링 ───────────────────────────────────────────────────────────
 _step_indicator(st.session_state.step)
