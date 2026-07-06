@@ -28,13 +28,11 @@ def _chat_gemini(messages: list) -> str | None:
     if not api_key:
         return None
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        # system + user 메시지를 하나의 프롬프트로 합침
+        from google import genai as ggenai
+        client = ggenai.Client(api_key=api_key)
         combined = "\n\n".join(m["content"] for m in messages if m["role"] != "assistant")
-        response = model.generate_content(combined)
-        return response.text.strip()
+        resp = client.models.generate_content(model="gemini-2.5-flash", contents=combined)
+        return resp.text.strip()
     except Exception:
         return None
 
