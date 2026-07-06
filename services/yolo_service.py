@@ -4,6 +4,19 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 MODEL_PATH = Path(__file__).parent.parent / "models" / "best.pt"
+HF_REPO_ID = "eunseok22/carcheck-model"
+
+
+def _ensure_model():
+    if MODEL_PATH.exists():
+        return
+    try:
+        from huggingface_hub import hf_hub_download
+        MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+        hf_hub_download(repo_id=HF_REPO_ID, filename="best.pt",
+                        local_dir=str(MODEL_PATH.parent))
+    except Exception:
+        pass
 
 CLASS_NAMES = {0: "Scratched", 1: "Breakage", 2: "Separated", 3: "Crushed"}
 CLASS_KO    = {0: "긁힘",      1: "파손",     2: "분리",      3: "찌그러짐"}
@@ -20,9 +33,11 @@ _model = None
 
 def _load_model():
     global _model
-    if _model is None and MODEL_PATH.exists():
-        from ultralytics import YOLO
-        _model = YOLO(str(MODEL_PATH))
+    if _model is None:
+        _ensure_model()
+        if MODEL_PATH.exists():
+            from ultralytics import YOLO
+            _model = YOLO(str(MODEL_PATH))
     return _model
 
 

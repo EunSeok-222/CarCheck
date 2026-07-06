@@ -15,6 +15,7 @@ data/knowledge/*.pdf
 data/*.db
 
 # ── 모델 가중치 ──
+models/*.pt
 models/*.onnx
 models/car_damage_seg/
 yolov8n-seg.pt
