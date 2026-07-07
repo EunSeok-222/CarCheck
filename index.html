@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CarCheck · AI 차량 손상 분석 발표</title>
 
-<link rel="stylesheet" href="./slides_files/reveal.css">
-<link rel="stylesheet" href="./slides_files/reset.css">
-<link rel="stylesheet" href="./slides_files/pretendard.css">
+<link rel="stylesheet" href="./CarCheck · AI 차량 손상 분석 발표_files/reveal.css">
+<link rel="stylesheet" href="./CarCheck · AI 차량 손상 분석 발표_files/reset.css">
+<link rel="stylesheet" href="./CarCheck · AI 차량 손상 분석 발표_files/pretendard.css">
 
 <style>
 :root{
@@ -384,7 +384,7 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 <section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
   <div class="slide-head"><span class="kicker">08 · Training Setup</span><h2>학습 설정 &amp; 클래스 분포</h2><div class="rule"></div></div>
   <div class="glayout">
-    <div class="gleft"><img class="gimg" src="./slides_files/class_dist.png" alt="클래스 분포"></div>
+    <div class="gleft"><img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/class_dist.png" alt="클래스 분포"></div>
     <div class="gright">
       <table class="data">
         <thead><tr><th>항목</th><th>값</th></tr></thead>
@@ -405,7 +405,7 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 <section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
   <div class="slide-head"><span class="kicker">09 · Metrics</span><h2>학습 곡선 — mAP50</h2><div class="rule"></div></div>
   <div class="glayout">
-    <div class="gleft"><img class="gimg" src="./slides_files/map_curve.png" alt="mAP 곡선"></div>
+    <div class="gleft"><img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/map_curve.png" alt="mAP 곡선"></div>
     <div class="gright">
       <div class="panel p-obs"><div class="ph">👀 관찰</div><div class="pb">Box·Mask mAP50 모두 30 epoch 내내 <b>우상향</b>, 아직 정체되지 않음.</div></div>
       <div class="panel p-int"><div class="ph">🔍 해석</div><div class="pb">곡선이 계속 오르는 중 = <b>학습 여력 존재</b>. 데이터·epoch을 늘리면 개선 여지.</div></div>
@@ -420,8 +420,8 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
   <div class="slide-head"><span class="kicker">10 · Loss</span><h2>학습 곡선 — Loss &amp; 과적합</h2><div class="rule"></div></div>
   <div class="glayout">
     <div class="gleft">
-      <img class="gimg" src="./slides_files/loss_curve.png" alt="Loss 곡선" style="max-height:250px; width:auto; object-fit:contain; margin:0 auto;">
-      <img class="gimg" src="./slides_files/trainval_curve.png" alt="Train vs Val" style="max-height:250px; width:auto; object-fit:contain; margin:0 auto;">
+      <img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/loss_curve.png" alt="Loss 곡선" style="max-height:250px; width:auto; object-fit:contain; margin:0 auto;">
+      <img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/trainval_curve.png" alt="Train vs Val" style="max-height:250px; width:auto; object-fit:contain; margin:0 auto;">
     </div>
     <div class="gright">
       <div class="panel p-obs"><div class="ph">👀 관찰</div><div class="pb">Box·Seg·Cls loss 모두 <b>안정적으로 감소</b> → 학습 정상 수렴.</div></div>
@@ -435,7 +435,7 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 <section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
   <div class="slide-head"><span class="kicker">11 · Sample &amp; Score</span><h2>학습 샘플 &amp; 성능 요약</h2><div class="rule"></div></div>
   <div class="glayout">
-    <div class="gleft"><img class="gimg" src="./slides_files/train_sample.jpg" alt="학습 샘플" style="max-height:460px; width:auto; object-fit:contain; margin:0 auto;"></div>
+    <div class="gleft"><img class="gimg" src="./CarCheck · AI 차량 손상 분석 발표_files/train_sample.jpg" alt="학습 샘플" style="max-height:460px; width:auto; object-fit:contain; margin:0 auto;"></div>
     <div class="gright">
       <div class="grid g2" style="gap:10px;">
         <div class="card" style="text-align:center; padding:14px;"><span class="big">0.239</span><p style="font-size:0.62em;">mAP50 (Box)</p></div>
@@ -449,7 +449,45 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 
 <!-- 14. 학습 전략 회고 (에폭) -->
 <section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
-  <div class="slide-head"><span class="kicker">12 · Retrospective</span><h2>학습 전략 회고 — 왜 960장 × 100 epoch?</h2><div class="rule"></div></div>
+  <div class="slide-head"><span class="kicker">12 · RAG + LLM</span><h2>RAG 기반 보험 상담</h2><div class="rule"></div></div>
+  <div class="grid g2">
+    <div class="card"><h3>🔎 Retrieval (검색)</h3><ul class="clean">
+      <li><strong>ChromaDB</strong> 2개 컬렉션</li>
+      <li><em>repair_cases</em> — 유사 견적 사례</li>
+      <li><em>knowledge</em> — 약관·할증 규정</li>
+      <li>임베딩: <strong>multilingual-MiniLM</strong></li></ul></div>
+    <div class="card"><h3>🤖 Generation (생성)</h3><ul class="clean">
+      <li><strong>로컬</strong> — Gemma2 · Ollama</li>
+      <li><strong>배포</strong> — Groq API · LLaMA 3.3</li>
+      <li><strong>비상</strong> — Gemini 2.5-flash fallback</li>
+      <li>약관 인용 → <strong>환각 감소</strong></li>
+      <li>자동차 보험 외 질문 <em>거절</em></li></ul></div>
+  </div>
+  <p style="text-align:center; margin-top:20px; font-size:0.7em; color:var(--text-dim);">
+    분석 결과 + 대화 히스토리 + 검색된 약관을 <strong>system prompt에 주입</strong> → 근거 기반 맞춤 상담</p>
+</section>
+
+<!-- 16. 트러블슈팅 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">13 · Troubleshooting</span><h2>트러블슈팅</h2><div class="rule"></div></div>
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div class="card" style="padding:12px 18px;">
+      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🧠 학습 &amp; 개발</div>
+      <div class="trouble"><div class="p">🐛 Colab 세션 끊김으로 학습 유실</div><span class="arrow">→</span><div class="s">✅ <b>epoch별 체크포인트 콜백</b> 자동 복구</div></div>
+      <div class="trouble"><div class="p">🐛 클래스 불균형 — Scratched 65% 편중, 소수 클래스 미검출</div><span class="arrow">→</span><div class="s">✅ AI Hub 데이터로 소수 클래스 <b>15~18배 확장</b></div></div>
+      <div class="trouble"><div class="p">🐛 Streamlit 이미지 유실 — session_state PIL 객체 깨짐</div><span class="arrow">→</span><div class="s">✅ <b>bytes로 직렬화</b>해 재실행에도 유지</div></div>
+    </div>
+    <div class="card" style="padding:12px 18px;">
+      <div style="color:var(--neon-blue); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🚀 HF Spaces 배포</div>
+      <div class="trouble"><div class="p">🐛 Ollama는 로컬 전용 — 클라우드 서버에 LLM 없음</div><span class="arrow">→</span><div class="s">✅ <b>Groq API</b> 교체 · 4개 모델 fallback 체인</div></div>
+      <div class="trouble"><div class="p">🐛 HF Spaces가 <code>best.pt</code> push 거부 — Git LFS도 차단</div><span class="arrow">→</span><div class="s">✅ <b>HF Hub 모델 저장소</b> 분리 업로드 · 앱 시작 시 자동 다운로드</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 17. 향후 계획 -->
+<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
+  <div class="slide-head"><span class="kicker">14 · Retrospective</span><h2>학습 전략 회고 — 왜 960장 × 100 epoch?</h2><div class="rule"></div></div>
   <div class="glayout">
     <div class="gleft">
       <table class="data">
@@ -473,44 +511,6 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 </section>
 
 <!-- 15. RAG 상담 -->
-<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
-  <div class="slide-head"><span class="kicker">13 · RAG + LLM</span><h2>RAG 기반 보험 상담</h2><div class="rule"></div></div>
-  <div class="grid g2">
-    <div class="card"><h3>🔎 Retrieval (검색)</h3><ul class="clean">
-      <li><strong>ChromaDB</strong> 2개 컬렉션</li>
-      <li><em>repair_cases</em> — 유사 견적 사례</li>
-      <li><em>knowledge</em> — 약관·할증 규정</li>
-      <li>임베딩: <strong>multilingual-MiniLM</strong></li></ul></div>
-    <div class="card"><h3>🤖 Generation (생성)</h3><ul class="clean">
-      <li><strong>로컬</strong> — Gemma2 · Ollama</li>
-      <li><strong>배포</strong> — Groq API · LLaMA 3.3</li>
-      <li><strong>비상</strong> — Gemini 2.5-flash fallback</li>
-      <li>약관 인용 → <strong>환각 감소</strong></li>
-      <li>자동차 보험 외 질문 <em>거절</em></li></ul></div>
-  </div>
-  <p style="text-align:center; margin-top:20px; font-size:0.7em; color:var(--text-dim);">
-    분석 결과 + 대화 히스토리 + 검색된 약관을 <strong>system prompt에 주입</strong> → 근거 기반 맞춤 상담</p>
-</section>
-
-<!-- 16. 트러블슈팅 -->
-<section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
-  <div class="slide-head"><span class="kicker">14 · Troubleshooting</span><h2>트러블슈팅</h2><div class="rule"></div></div>
-  <div style="display:flex; flex-direction:column; gap:12px;">
-    <div class="card" style="padding:12px 18px;">
-      <div style="color:var(--neon-cyan); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🧠 학습 &amp; 개발</div>
-      <div class="trouble"><div class="p">🐛 Colab 세션 끊김으로 학습 유실</div><span class="arrow">→</span><div class="s">✅ <b>epoch별 체크포인트 콜백</b> 자동 복구</div></div>
-      <div class="trouble"><div class="p">🐛 클래스 불균형 — Scratched 65% 편중, 소수 클래스 미검출</div><span class="arrow">→</span><div class="s">✅ AI Hub 데이터로 소수 클래스 <b>15~18배 확장</b></div></div>
-      <div class="trouble"><div class="p">🐛 Streamlit 이미지 유실 — session_state PIL 객체 깨짐</div><span class="arrow">→</span><div class="s">✅ <b>bytes로 직렬화</b>해 재실행에도 유지</div></div>
-    </div>
-    <div class="card" style="padding:12px 18px;">
-      <div style="color:var(--neon-blue); font-weight:800; font-size:0.62em; margin-bottom:8px; letter-spacing:0.06em;">🚀 HF Spaces 배포</div>
-      <div class="trouble"><div class="p">🐛 Ollama는 로컬 전용 — 클라우드 서버에 LLM 없음</div><span class="arrow">→</span><div class="s">✅ <b>Groq API</b> 교체 · 4개 모델 fallback 체인</div></div>
-      <div class="trouble"><div class="p">🐛 HF Spaces가 <code>best.pt</code> push 거부 — Git LFS도 차단</div><span class="arrow">→</span><div class="s">✅ <b>HF Hub 모델 저장소</b> 분리 업로드 · 앱 시작 시 자동 다운로드</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- 17. 향후 계획 -->
 <section style="top: 0px; display: none;" class="future" hidden="" aria-hidden="true">
   <div class="slide-head"><span class="kicker">15 · Next</span><h2>향후 계획</h2><div class="rule"></div></div>
   <div class="grid g2">
@@ -547,8 +547,8 @@ table.data .hl td{ background:rgba(34,211,238,0.08); }
 
 <div class="footer-brand">🚗 <b>CarCheck</b></div>
 
-<script src="./slides_files/reveal.js"></script>
-<script src="./slides_files/notes.js"></script>
+<script src="./CarCheck · AI 차량 손상 분석 발표_files/reveal.js"></script>
+<script src="./CarCheck · AI 차량 손상 분석 발표_files/notes.js"></script>
 <script>
   Reveal.initialize({
     hash:true, slideNumber:'c/t', transition:'slide', backgroundTransition:'fade',
