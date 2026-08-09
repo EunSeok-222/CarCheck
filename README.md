@@ -25,7 +25,7 @@
 |  |  |
 |---|---|
 | **프로젝트명** | CarCheck (자동차 손상 보험 상담) |
-| **개발 기간** | 2026.06 ~ 06.20 (개인 프로젝트) |
+| **개발 기간** | 2026.06.25 ~ 07.01 (개인 프로젝트) |
 | **개발 인원** | 1인 — 데이터 수집·전처리부터 모델 학습, 백엔드 로직, 프론트(Streamlit) UI까지 전 과정 단독 개발 |
 | **핵심 개념** | 사진 업로드 → AI 손상 탐지 → 수리비 추정 → 보험료 할증 시뮬레이션 → RAG 기반 상담/보고서 |
 | **배포** | Hugging Face Spaces (Streamlit SDK) — [huggingface.co/spaces/eunseok22/CarCheck](https://huggingface.co/spaces/eunseok22/CarCheck) |
