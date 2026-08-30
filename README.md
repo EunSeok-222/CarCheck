@@ -136,7 +136,8 @@ streamlit run app.py
 
 | 변수 | 설명 |
 |---|---|
-| `GROQ_API_KEY` | Groq API 키 (필수 — LLM 상담·리포트 생성) |
-| `GEMINI_API_KEY` | Gemini API 키 (선택 — Groq 전 모델 실패 시 비상 fallback) |
+| `GROQ_API_KEY` | Groq API 키 (1차 — LLM 상담·리포트 생성) |
+| `GEMINI_API_KEY` | Gemini API 키 (2차 — Groq 실패 시 비상 fallback) |
+| `HF_TOKEN` | Hugging Face 토큰 (3차 — Groq·Gemini 모두 실패 시 비상 fallback, [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)에서 무료 발급) |
 
 Hugging Face Spaces 배포 시에는 Space Secrets에 등록합니다.

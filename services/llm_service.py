@@ -1,12 +1,14 @@
 import os
+import logging
 from groq import Groq
 from services.rag_service import retrieve_similar_cases, retrieve_knowledge
+
+logger = logging.getLogger(__name__)
 
 MODELS = [
     "llama-3.3-70b-versatile",
     "llama-3.1-8b-instant",
     "llama3-8b-8192",
-    "mixtral-8x7b-32768",
 ]
 _client = None
 
@@ -18,28 +20,73 @@ def _get_client() -> Groq:
     return _client
 
 
-def _is_model_error(e: Exception) -> bool:
+def _is_account_error(e: Exception) -> bool:
+    """계정/키 단위 오류(모델을 바꿔도 소용없는 경우)인지 판별."""
+    if isinstance(e, KeyError):
+        return True
     msg = str(e)
-    return any(k in msg for k in ("decommissioned", "model_not_found", "model_decommissioned", "not found"))
+    return any(k in msg for k in (
+        "organization_restricted", "invalid_api_key", "authentication",
+        "unauthorized", "rate_limit_exceeded", "insufficient_quota",
+        "401", "403",
+    ))
 
 
-def _chat_gemini(messages: list) -> str | None:
+def _chat_gemini(messages: list, max_tokens: int, errors: list) -> str | None:
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
+        errors.append("Gemini: GEMINI_API_KEY 미설정")
         return None
     try:
         from google import genai as ggenai
+        from google.genai import types as gtypes
         client = ggenai.Client(api_key=api_key)
-        combined = "\n\n".join(m["content"] for m in messages if m["role"] != "assistant")
-        resp = client.models.generate_content(model="gemini-2.5-flash", contents=combined)
-        return resp.text.strip()
-    except Exception:
+        system = "\n".join(m["content"] for m in messages if m["role"] == "system")
+        convo = "\n\n".join(
+            f'{m["role"]}: {m["content"]}' for m in messages if m["role"] != "system"
+        )
+        resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=convo,
+            config=gtypes.GenerateContentConfig(
+                system_instruction=system or None,
+                max_output_tokens=max_tokens,
+                temperature=0.1,
+            ),
+        )
+        return (resp.text or "").strip() or None
+    except Exception as e:
+        logger.warning(f"Gemini fallback 실패: {e}")
+        errors.append(f"Gemini: {e}")
+        return None
+
+
+def _chat_hf(messages: list, errors: list) -> str | None:
+    """Hugging Face Inference API 비상 fallback (Groq·Gemini 둘 다 실패했을 때)."""
+    token = os.environ.get("HF_TOKEN")
+    if not token:
+        errors.append("HF: HF_TOKEN 미설정")
+        return None
+    try:
+        from huggingface_hub import InferenceClient
+        client = InferenceClient(token=token)
+        resp = client.chat_completion(
+            messages=messages,
+            model="meta-llama/Llama-3.3-70B-Instruct",
+            max_tokens=700,
+            temperature=0.1,
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        logger.warning(f"HF Inference fallback 실패: {e}")
+        errors.append(f"HF: {e}")
         return None
 
 
 def _chat(messages: list, max_tokens: int) -> str:
-    last_err = None
-    # 1차: Groq 모델 순서대로 시도
+    errors = []
+    # 1차: Groq 모델 순서대로 시도. 계정 단위 오류(조직 차단·인증 실패 등)는
+    # 어떤 모델로 바꿔도 동일하게 실패하므로 즉시 다음 provider로 넘어간다.
     for model in MODELS:
         try:
             resp = _get_client().chat.completions.create(
@@ -48,15 +95,23 @@ def _chat(messages: list, max_tokens: int) -> str:
             )
             return resp.choices[0].message.content.strip()
         except Exception as e:
-            if _is_model_error(e):
-                last_err = e
-                continue
-            raise
+            errors.append(f"Groq({model}): {e}")
+            if _is_account_error(e):
+                logger.warning(f"Groq 계정 단위 오류, 나머지 모델 스킵: {e}")
+                break
+            continue
+
     # 2차: Gemini 비상 fallback
-    gemini_result = _chat_gemini(messages)
+    gemini_result = _chat_gemini(messages, max_tokens, errors)
     if gemini_result:
         return gemini_result
-    return f"죄송합니다, 현재 사용 가능한 모델이 없습니다. ({last_err})"
+
+    # 3차: Hugging Face Inference API 비상 fallback
+    hf_result = _chat_hf(messages, errors)
+    if hf_result:
+        return hf_result
+
+    raise RuntimeError("모든 LLM provider 실패 — " + " | ".join(errors))
 
 _SYSTEM_BASE = """당신은 자동차 손상 보험 상담 전문 AI입니다.
 오직 아래 주제에만 답변하세요:
