@@ -10,8 +10,8 @@ venv/
 # ── 대용량 데이터 (GitHub 제외) ──
 data/yolo_dataset/
 data/*.zip
-data/rag_db/
-data/knowledge/*.pdf
+# estimates.db(112MB)는 GitHub 100MB 제한 초과 → HF Hub 데이터셋으로 배포.
+# rag_db·knowledge PDF는 용량이 작아(~11MB씩) 직접 커밋함.
 data/*.db
 
 # ── 모델 가중치 ──

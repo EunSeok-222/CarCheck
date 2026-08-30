@@ -2,6 +2,20 @@ import sqlite3
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent.parent / "data" / "estimates.db"
+DATA_REPO_ID = "eunseok22/carcheck-data"
+
+
+def _ensure_db():
+    """estimates.db(112MB, GitHub 100MB 제한 초과)가 없으면 HF Hub 데이터셋에서 내려받는다."""
+    if DB_PATH.exists():
+        return
+    try:
+        from huggingface_hub import hf_hub_download
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+        hf_hub_download(repo_id=DATA_REPO_ID, filename="estimates.db",
+                        repo_type="dataset", local_dir=str(DB_PATH.parent))
+    except Exception:
+        pass
 
 # YOLO 손상 유형 → 작업 키워드 매핑
 _DAMAGE_TO_ACTION = {
@@ -27,11 +41,17 @@ _PART_KEYWORDS = {
     "본네트":        ["후드", "본네트"],
 }
 
+# 사진 업로드 시 사용자가 직접 고르는 촬영 부위 선택지.
+# YOLO 모델은 손상 유형(긁힘/파손/분리/찌그러짐)만 분류하고 부위는 예측하지
+# 않으므로, 부위는 사용자 입력으로 받아 위 _PART_KEYWORDS와 동일한 이름 체계를 쓴다.
+PART_OPTIONS = list(_PART_KEYWORDS.keys())
+
 _DEFAULT_COST = 120_000  # DB에서 못 찾을 때 기본값
 
 
 def _get_cost_from_db(part: str, action_ko: str) -> int:
     """part_cost_avg 뷰에서 평균 공임 조회. 못 찾으면 _DEFAULT_COST."""
+    _ensure_db()
     keywords = _PART_KEYWORDS.get(part, [part])
 
     try:

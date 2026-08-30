@@ -4,7 +4,7 @@ import streamlit as st
 from PIL import Image
 
 from services.yolo_service import detect_damage
-from services.cost_service import estimate_repair_cost
+from services.cost_service import estimate_repair_cost, PART_OPTIONS
 from services.insurance_service import calculate_insurance_impact
 from services.llm_service import generate_report, answer_question
 
@@ -321,6 +321,11 @@ elif step == "premium":
         st.rerun()
 
 elif step == "photo":
+    selected_part = st.selectbox(
+        "촬영 부위", PART_OPTIONS,
+        help="AI는 손상 유형(긁힘·파손 등)만 판별하고 부위는 판별하지 못해, "
+             "사진에 찍힌 부위를 직접 선택해주세요.",
+    )
     uploaded = st.file_uploader(
         "사진 업로드", type=["jpg", "jpeg", "png"],
         label_visibility="collapsed",
@@ -329,8 +334,9 @@ elif step == "photo":
         img_bytes = uploaded.getvalue()
         image     = Image.open(io.BytesIO(img_bytes)).convert("RGB")
         st.session_state.upload_bytes = img_bytes
+        st.session_state.selected_part = selected_part
         st.session_state.messages.append(
-            {"role": "user", "content": "📸 사진 업로드 완료", "image": _to_bytes(image)}
+            {"role": "user", "content": f"📸 {selected_part} 사진 업로드 완료", "image": _to_bytes(image)}
         )
         st.session_state.step = "analyzing"
         st.rerun()
@@ -339,7 +345,7 @@ elif step == "analyzing":
     image = Image.open(io.BytesIO(st.session_state.upload_bytes)).convert("RGB")
 
     with st.spinner("🔍 AI가 손상 부위를 분석하는 중... 잠시만 기다려주세요"):
-        damage_result    = detect_damage(image)
+        damage_result    = detect_damage(image, part=st.session_state.get("selected_part", ""))
         repair_cost      = estimate_repair_cost(damage_result)
         insurance_result = calculate_insurance_impact(
             repair_cost=repair_cost["total"],

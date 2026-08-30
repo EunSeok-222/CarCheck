@@ -20,11 +20,7 @@ def _ensure_model():
 
 CLASS_NAMES = {0: "Scratched", 1: "Breakage", 2: "Separated", 3: "Crushed"}
 CLASS_KO    = {0: "긁힘",      1: "파손",     2: "분리",      3: "찌그러짐"}
-PART_NAMES  = [
-    "앞 범퍼", "뒤 범퍼", "앞 도어(좌)", "앞 도어(우)",
-    "앞 펜더(좌)", "앞 펜더(우)", "헤드라이트(좌)", "헤드라이트(우)",
-    "트렁크", "본네트",
-]
+DEFAULT_PART = "미확인 부위"
 COLORS = {0: (255, 220, 0, 120), 1: (255, 50, 50, 140),
           2: (255, 140, 0, 130), 3: (200, 0, 200, 130)}
 
@@ -63,7 +59,7 @@ def _draw_masks(image: Image.Image, results) -> Image.Image:
     return annotated
 
 
-def _parse_results(results, image: Image.Image) -> dict:
+def _parse_results(results, image: Image.Image, part: str) -> dict:
     boxes   = results[0].boxes
     masks   = results[0].masks
     damages = []
@@ -82,10 +78,13 @@ def _parse_results(results, image: Image.Image) -> dict:
                 x = pts[:, 0]; y = pts[:, 1]
                 area = int(0.5 * abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1))))
 
+        # 모델은 손상 유형(긁힘/파손/분리/찌그러짐)만 분류하고 부위를 예측하지
+        # 않는다. 사진 한 장은 사용자가 지정한 한 부위를 촬영한 것이므로,
+        # 해당 사진 안의 모든 감지 결과에 같은 부위명을 부여한다.
         damages.append({
             "type":       CLASS_NAMES.get(cls_id, "Unknown"),
             "type_ko":    CLASS_KO.get(cls_id, "기타"),
-            "part":       PART_NAMES[i % len(PART_NAMES)],
+            "part":       part or DEFAULT_PART,
             "confidence": conf,
             "area":       area,
         })
@@ -100,27 +99,31 @@ def _parse_results(results, image: Image.Image) -> dict:
     }
 
 
-# ── 목업 (best.pt 없을 때 fallback) ────────────────────────
-_MOCK = [
-    {"type": "Scratched", "type_ko": "긁힘",   "part": "앞 범퍼",       "confidence": 0.87, "area": 5200},
-    {"type": "Breakage",  "type_ko": "파손",   "part": "헤드라이트(좌)", "confidence": 0.92, "area": 1800},
-]
+def _mock_data(part: str) -> list:
+    """best.pt 없거나 감지 실패 시 데모용 목업 (사용자가 고른 부위를 그대로 반영)."""
+    p = part or DEFAULT_PART
+    return [
+        {"type": "Scratched", "type_ko": "긁힘", "part": p, "confidence": 0.87, "area": 5200},
+        {"type": "Breakage",  "type_ko": "파손", "part": p, "confidence": 0.92, "area": 1800},
+    ]
 
 
-def detect_damage(image: Image.Image) -> dict:
+def detect_damage(image: Image.Image, part: str = "") -> dict:
     model = _load_model()
 
     if model is None:
+        mock = _mock_data(part)
         return {"original_image": image, "annotated_image": image,
-                "damages": _MOCK, "damage_count": len(_MOCK),
+                "damages": mock, "damage_count": len(mock),
                 "_mock": True}
 
     results = model.predict(image, conf=0.25, iou=0.45, verbose=False)
-    parsed  = _parse_results(results, image)
+    parsed  = _parse_results(results, image, part)
 
     if parsed["damage_count"] == 0:
-        parsed["damages"]       = _MOCK
-        parsed["damage_count"]  = len(_MOCK)
+        mock = _mock_data(part)
+        parsed["damages"]       = mock
+        parsed["damage_count"]  = len(mock)
         parsed["_mock"]         = True
 
     return parsed
